@@ -25,9 +25,9 @@ library(broom)
 library(flextable)
 
 
-look_dat <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/finalDat.csv") # 721 trials
-avg_dat <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/avgDat.csv") # 107 infants
-rle_dat <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/RLEdat.csv") # 340 individual fixations
+look_dat <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/finalDat.csv") # 721 trials
+avg_dat <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/avgDat.csv") # 107 infants
+rle_dat <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/RLEdat.csv") # 340 individual fixations
 
 #### 010: Calcualting and evaluating handle preference score across all infants ####
 
@@ -101,4 +101,4 @@ t <- flextable(tab_01) %>%
 t
 
 
-save_as_docx(t,path = "~/Box/May I Grab Your Attention/Manuscript Output/Table 1.docx")
+save_as_docx(t,path = "~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/Table 1.docx")

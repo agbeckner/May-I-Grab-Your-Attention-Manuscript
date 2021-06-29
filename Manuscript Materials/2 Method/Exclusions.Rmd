@@ -32,11 +32,11 @@ theme_set(theme_bw() +
 
 ```{r}
 ### now calculate exclusions and demographics
-participant_exclusions <- read.csv("~/Box/May I Grab Your Attention/Data/ProcessedData/partExclusions.csv")
+participant_exclusions <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/partExclusions.csv")
 
 # 061421 LMO: This will be incomplete; it does not include the trials excluded because of video durations
 # 062021 LMO: I still haven't fixed this
-trial_exclusions <- read.csv("~/Box/May I Grab Your Attention/Data/ProcessedData/trialExclusions.csv")
+trial_exclusions <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/trialExclusions.csv")
 
 # participant-wise exclusions (n = 36 participants excluded)
 #unique(participant_exclusions$reason) 

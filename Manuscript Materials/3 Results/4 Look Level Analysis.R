@@ -16,7 +16,12 @@
 #   http://creativecommons.org/licenses/by/4.0/ or send a letter to 
 #   Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 #
-
+# %%%%%%%%%%%%%%%%%%%%%%
+# DATA FILE DESCRIPTIONS
+# %%%%%%%%%%%%%%%%%%%%%%
+#
+# This script  uses the following files, which was produced by
+#    RLEdat.csv
 
 
 #### 000: set up ####
@@ -31,8 +36,8 @@ library(cowplot)
 
 #### 010: read in the data ####
 
-rle_dat <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/RLEdat.csv") # 340 individual fixations
-stim_info <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/stim_for_ind_look.csv")
+rle_dat <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/RLEdat.csv") # 340 individual fixations
+stim_info <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/stim_for_ind_look.csv")
 
 #### 020: add size info to the data ####
 
@@ -67,8 +72,7 @@ summary <- sum_looking2 %>%
 
 
 
-# are looks to the handled objects longer?
-
+## are looks to the handled objects longer?
 # Create an average score for each infant
 rle_dat %>% group_by(child_hashed_id, stim_handle) %>% 
   summarise(mean_look_duration = mean(adjusted_length)) %>% 
@@ -107,16 +111,18 @@ ggplot(data = rle_dat,
        aes(x = as.numeric(fixationnumber), 
            y = adjusted_length, 
            group = stim_handle, 
-           color = as.factor(stim_handle))) +
-  ylab("") + xlab("") +
-  geom_jitter(shape = 1, alpha = .7, size = 2, width = NULL)+
+           color = as.factor(stim_handle),
+           shape = as.factor(child_gender))) +
+  ylab("Observed Mean \n Fixation (ms)") + xlab("") +
+  #geom_jitter(shape = 1, alpha = .7, size = 2, width = NULL)+
+  geom_jitter(alpha = .7, size = 2, width = NULL)+
   geom_smooth(method=lm, se=T, alpha = .5) + 
-  theme(legend.position = "none")+
-  labs(color= "Stimulus") + 
+  labs(color= "Stimulus", shape = "Sex") + 
   coord_cartesian(ylim = c(0,5000)) + 
   scale_x_continuous(breaks = seq(1, 11, 2)) +
-  scale_color_manual(values = c("#FF8C94", "#355C7D")) +
-  theme_half_open(base_size = 25) + 
+  scale_shape_manual(values = c(1, 5), labels = c("girl", "boy")) +
+  scale_color_manual(values = c("#FF8C94", "#355C7D"), labels = c("handle", "not handle")) +
+  theme_half_open(25) + 
   background_grid(minor = 'none') + 
   facet_grid(cols = vars(motorLevel),labeller = labeller(motorLevel = motor.labs)) -> observed_plot
 observed_plot
@@ -134,40 +140,40 @@ ggplot(data = look_level_model_emmeans,
                 size = 0.7,
                 alpha = .8, 
                 color = "gray40") +
-  ylab("") + xlab("") +
+  ylab("Estimated Mean \n Fixation (ms)") + xlab("Fixation Index") +
   geom_point(size = 2.7) +
   geom_line(size = .8) +
-  labs(color= "Stimulus") + 
-  theme(legend.position = "none")+
+  #labs(color= "Stimulus") + 
+  #theme(legend.position = "none")+
   scale_color_manual(values = c("#FF8C94", "#355C7D")) +
   coord_cartesian(ylim = c(0,2500)) + 
   scale_x_continuous(breaks = seq(1, 7, 1)) +
-  theme_half_open(base_size = 25) + 
+  theme_half_open(25) + 
   background_grid(minor = 'none') + 
   facet_grid(cols = vars(motorLevel),
              labeller = labeller(motorLevel = motor.labs)) -> estimated_plot
-estimated_plot
+
+estimated_plot +  theme(legend.position = "none") #-> plot2
 
 
-# now add the title and labels
-title <- ggdraw() + 
-  draw_label("Infant Preference for Each Item at Each Fixation Index",
-  fontface = 'bold',size = 30,hjust = 0.5, x = 10) +
-  draw_label("Fixation Index", x=-1, vjust=-0.5, size = 22) #+
-  #theme(plot.margin = margin(0, 0, 0, 0)) #+
-  #theme(axis.title.x = element_blank(), 
-        #plot.caption = element_text(size = 14, hjust = 0.5, face = "bold")) 
-#cowplot::plot_grid(title, combo_plot,ncol = 1) -> combo_plot_titled
-  #rel_heights = c(0.1, 1)) -> combo_plot_titled
+# put the plots together
+cowplot::plot_grid(observed_plot + theme(legend.position = "none"),
+                   estimated_plot + theme(legend.position = "none"),
+                   labels = c('A', 'B'), 
+                   ncol = 1, 
+                   label_size = 25) -> combo_plot
+combo_plot
 
-# combine the plots
-cowplot::plot_grid(observed_plot,estimated_plot,title, 
-                   labels = c('A', 'B'), ncol = 1, label_size = 25) #-> combo_plot
+# format the legend
+legend <- get_legend(observed_plot + theme(legend.box.margin = margin(0, 0, 0, 0)))
+
+# add it
+legend_added <- plot_grid(combo_plot, legend, rel_widths = c(3, .3)) 
+legend_added
 
 
-
-setwd("~/Box/May I Grab Your Attention/R Code/Analysis/Manuscript/Manuscript Output/")
-ggexport(combo_plot, filename = "Look Level Figure.jpg", height = 500, width = 1400)
+setwd("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/")
+ggexport(legend_added, filename = "Figure 2.jpg", height = 1000, width = 1700)
 
 
 #### 060: Sanity check--LMM on individual look durations using age in days rather than motor level ####

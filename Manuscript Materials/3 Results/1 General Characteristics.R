@@ -21,9 +21,9 @@
 library(tidyverse)
 
 # read in the data
-look_dat <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/finalDat.csv") #721 trials
-avg_dat <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/avgDat.csv") # 107 infants
-rle_dat <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/RLEdat.csv") # 340 individual fixations
+look_dat <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/finalDat.csv") #721 trials
+avg_dat <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/avgDat.csv") # 107 infants
+rle_dat <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/RLEdat.csv") # 340 individual fixations
 
 #### 010: General Characteristics of Infants' Looking ####
 
@@ -66,4 +66,4 @@ cor.test(avg_dat$motorLevel, avg_dat$avg_look, method = "spearman") # r = .09
 cor.test(avg_dat3$motorLevel, avg_dat3$n_trials, method = "spearman") # r = .11
 
 # correlation between age in days and motor level
-cor.test(avg_dat3$motorLevel, avg_dat3$age_in_days,, method = "spearman") # r = .87
+cor.test(avg_dat3$motorLevel, avg_dat3$age_in_days, method = "spearman") # r = .87

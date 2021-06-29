@@ -25,8 +25,8 @@ library(performance)
 
 #### 010: read in files ####
 
-look_dat <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/finalDat.csv")
-stim_info <- read.csv("~/Box/May I Grab Your Attention/Manuscript Materials/1 Data Files/StimKey_Map.csv")
+look_dat <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/finalDat.csv")
+stim_info <- read.csv("~/Downloads/May-I-Grab-Your-Attention-Manuscript-main/Manuscript Materials/1 Data Files/StimKey_Map.csv")
 
 
 #### 020: create files for analysis ####
