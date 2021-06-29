@@ -1,0 +1,71 @@
+---
+title: "May I Grab Your Attention Lookit study script describing the exclusion characteristics"
+author: "Christian Nelson & Lisa Oakes"
+date: "6/21/2021"
+output:
+  word_document: default
+  html_document: default
+---
+
+  This is a script in the series of scripts for processing the May I Grab Your Attention Data
+  It describes the exclusion characteristics in this study
+
+  Infant Cognition Laboratory at the University of California, Davis (https://oakeslab.ucdavis.edu)
+ 
+    This work is licensed under the Creative Commons Attribution 4.0
+    International License. To view a copy of this license, visit
+    http://creativecommons.org/licenses/by/4.0/ or send a letter to
+    Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+    
+```{r load_packages_settings, include = FALSE}
+
+library(tidyverse)
+library(knitr)
+
+
+opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = FALSE)
+theme_set(theme_bw() + 
+            theme(strip.background = element_blank(), 
+                  panel.grid = element_blank())) # nice theme with limited extras
+```
+
+
+```{r}
+### now calculate exclusions and demographics
+participant_exclusions <- read.csv("~/Box/May I Grab Your Attention/Data/ProcessedData/partExclusions.csv")
+
+# 061421 LMO: This will be incomplete; it does not include the trials excluded because of video durations
+# 062021 LMO: I still haven't fixed this
+trial_exclusions <- read.csv("~/Box/May I Grab Your Attention/Data/ProcessedData/trialExclusions.csv")
+
+# participant-wise exclusions (n = 36 participants excluded)
+#unique(participant_exclusions$reason) 
+
+participant_exclusions %>% 
+  summarise(not_in_frame = sum(reason == "baby never in frame"),
+            gestation = sum(reason == "no gestational info" | 
+                              reason == "premature"),
+            mult_participations = sum(reason == "second participation"| 
+                                        reason == "third participation"),
+            no_videos = sum(reason == "no trial videos" | 
+                              reason == "no trial videos for first participation"),
+            age_old = sum(reason == "too old" | 
+                              reason == "way too old")) -> participant_exclusions_sum
+
+# trial-wise exclusions (n = 107 trials excluded)
+trial_exclusions %>% 
+  group_by(child_id) %>% 
+  summarise(n_trials = n_distinct(trial_name)) -> trial_exclusions_sum
+
+
+as.data.frame(table(trial_exclusions_sum$n_trials)) -> trial_exclusions_table
+```
+
+# Exclusions
+
+Of the 159 original sessions, n =`r participant_exclusions_sum$mult_participations` were excluded because they represented the infants' second time participating in the experiment, n =`r participant_exclusions_sum$not_in_frame` were excluded for having no visible infant during the trials, n =`r participant_exclusions_sum$no_videos` were excluded for not having any recorded videos (due to technical error or because they exited the study prior to beginning trials), n = XXXX for having other video recording issues (e.g., due to uploading time, the videos were cut short), n =`r participant_exclusions_sum$age_old` were excluded for being outside of our age criteria, and n =`r participant_exclusions_sum$gestation` were excluded for being premature at birth. 
+
+From the coding record, we calculated infants' looking to the handled and non-handled object in each bin of 500 ms as well as totaled across each trial. We used these scores to create handle preference scores by dividing the infants' looking to the handled object by their total looking to the two objects combined. We did this separately for each 500 ms bin of each trial as well as for infants' looking on each trial collapsed across those time bins.
+
+We also identified on each trial individual looks. These were any successive frames directed to the same object. For each sequence of frames directed to the same object, we calculated the duration of that look (number of frames * the duration of individual frames for that infant) and identified whether the object was the handled or non-handled object. 
+

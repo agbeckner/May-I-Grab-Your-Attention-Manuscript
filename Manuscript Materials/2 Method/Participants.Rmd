@@ -1,0 +1,143 @@
+---
+title: "May I Grab Your Attention Lookit study script calculating the demographics"
+author: "Christian Nelson & Lisa Oakes"
+date: "06/26/21"
+output:
+  word_document: default
+  html_document: default
+---
+ 
+  This is a script in the series of scripts for processing the May I Grab Your Attention Data
+  It analyzes the descriptive statistics for this study
+ 
+    Infant Cognition Laboratory at the University of California, Davis (https://oakeslab.ucdavis.edu)
+ 
+    This work is licensed under the Creative Commons Attribution 4.0
+    International License. To view a copy of this license, visit
+    http://creativecommons.org/licenses/by/4.0/ or send a letter to
+    Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+ 
+```{r load_packages_settings, include = FALSE}
+
+library(tidyverse)
+library(knitr)
+
+
+opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = FALSE)
+theme_set(theme_bw() + 
+            theme(strip.background = element_blank(), 
+                  panel.grid = element_blank())) # nice theme with limited extras
+```
+
+This script uses the following files:
+```{r load_data}
+demos <- read.csv("~/Box/May I Grab Your Attention/Data/ProcessedData/final_demographics.csv") 
+```
+
+### Demographic Calculations:
+  1. Mean age of infants in our sample
+  2. Gender counts
+  3. Race counts
+  4. Income range counts
+  5. Highest household education level
+  6. Mean agreement between coders
+  7. Number of infants in each trial block order
+  
+```{r echo=FALSE, results='hide'}
+## calculate infant ages
+age_stat <- demos %>%
+  summarise(mean = round(mean(age_in_days), 2),
+            min = round(min(age_in_days), 2),
+            max = round(max(age_in_days), 2),
+            sd = sd(age_in_days),
+            n = length(unique(child_hashed_id)),
+            female = sum(demos$child_gender == "f")) # 107 total
+
+
+## calculate race demographics
+#unique(demos$race) 
+race_stat <- demos %>%
+  summarise(white = sum(race == "White"), 
+            hispanic = sum(str_detect(race, "Hispanic")),
+            black = sum(race == "Black or African American"),
+            asian = sum(race == "Asian"),
+            hawaiian = sum(race == "Native Hawaiian or Other Pacific Islander"),
+            na = sum(race == ""),
+            multiracial = nrow(demos) - sum(white + black + asian + +hawaiian + na)) # 107
+
+# calculate distribution of income
+#unique(demos$income) # 21 unique values
+demos %>% summarise(na_income = sum(income == "" | income == "na"),
+                    over_200000 = sum(income == ">200000"),
+                    btwn_150_200000 = sum(income == "150000"|
+                                           income == "170000"| 
+                                            income == "180000"),
+                    btwn_100_150000 = sum(income == "100000"|
+                                          income == "110000"|
+                                           income == "120000"| 
+                                            income == "130000"|
+                                             income == "140000"),
+                    btwn_50_100000 = sum(income == "50000"|
+                                           income == "60000"| 
+                                            income == "70000"|
+                                             income == "80000"|
+                                              income == "90000"),
+                    less_50000 = sum(income == "5000"|
+                                           income == "15000"| 
+                                            income == "20000"|
+                                             income == "30000"|
+                                              income == "40000")) -> dem3 # 107 total
+
+# calculate distribution of education
+as.character(demos$education_primary) -> demos$education_primary
+as.character(demos$education_spouse) -> demos$education_spouse
+
+demos %>% 
+  mutate(primary_ed = ifelse(education_primary == "grad"|
+                               education_primary == "prof"|
+                               education_primary == "bach"|
+                               education_primary == "assoc", "degree", 0),
+         secondary_ed = ifelse(education_spouse == "grad"|
+                                 education_spouse == "prof"|
+                                 education_spouse == "bach"|
+                                 education_spouse == "assoc", "degree", 0),
+         household_ed = ifelse(primary_ed == "degree" | secondary_ed == "degree", 1, 0),
+         na_ed = ifelse(education_primary == "" & education_spouse == "", 1, 0),
+         no_college = ifelse(primary_ed != "degree" & 
+                               secondary_ed != "degree" & 
+                               na_ed != "1", 1, 0)) -> d2
+  
+d2 %>% 
+  summarise(household_collegedegree = sum(as.numeric(household_ed)),
+            household_nocollegedegree = sum(as.numeric(no_college)),
+            household_na = sum(as.numeric(na_ed))) -> d3
+
+### calculate how many babies participated in version a (before the blocks were switched) and version b (after) 
+demos %>% 
+  mutate(test_date = substr(test_date, 1,10)) %>% 
+  summarise(block_a = sum(test_date <= as.Date("2020-08-31")),
+            block_b = sum(test_date > as.Date("2020-08-31")))-> block_counts
+```
+
+## Sample characteristics
+
+There were 159 infant participation sessions in this study between 08-26-20 and 01-26-21 Our final sample included `r age_stat$n` of these infants (Mage = `r age_stat$mean` days old, SD = `r age_stat$sd`; `r age_stat$female` girls). All infants in the final sample resided in the US and were born full term. Infants were recruited via the Lookit recruiter (i.e., emails were sent to families who had accounts in Lookit when their infant was eligible for this study), social media (ads placed on Facebook), and emails from our lab to families who had agreed to participate in research. The infants in our local participant pool were initially identified from birth records supplied by the State of California Vital Records. Parents were sent informational mailings and contacted us if they wished to be contacted about research opportunities. Families who were recruited from social media or our pool were given information about how to access Lookit; if they chose to participate, they created an account to access our study. All families who participated from the US received a $5 gift card to Amazon.
+
+### Family income and education
+
+The sample was racially diverse. Of the `r nrow(demos)` infants in our final sample, `r race_stat$white` were White, `r race_stat$black` were Black or African American, `r race_stat$asian` were Asian American, `r race_stat$multiracial` were multiracial, and `r race_stat$na` were some other race or did not report race. Regardless of race, `r race_stat$hispanic` infants were reported to be Hispanic. The sample was upper middle class. 
+
+Of the `r nrow(demos)` families in our sample, at least `r d3$household_collegedegree` had at least 1 college degree, while `r d3$household_nocollegedegree` had no college degree, and `r d3$household_na` declined to state. 
+
+### Number of participants in each version of the block order
+
+`r block_counts$block_a` infants were tested in the first version of this study and after the blocks were switched, `r block_counts$block_b` more infants were tested. 
+
+
+
+
+
+
+
+
+
